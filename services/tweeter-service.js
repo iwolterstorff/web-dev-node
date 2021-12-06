@@ -1,12 +1,11 @@
-let tweets = require("../data/tweets.json");
+const dao = require("../tweets/dao");
 
 function findAllTweets(req, res) {
-    res.json(tweets);
+    dao.findAllTweets().then(tweets => res.json(tweets));
 }
 
 function createTweet(req, res) {
     const newTweet = {
-        _id: (new Date()).getTime() + "",
         topic: "Web Development",
         userName: "ReactJS",
         verified: false,
@@ -21,35 +20,30 @@ function createTweet(req, res) {
         },
         ...req.body,
     }
-    tweets = [
-        newTweet,
-        ...tweets,
-    ];
-    res.json(newTweet);
+    dao.createTweet(newTweet);
 }
 
 function deleteTweet(req, res) {
-    const id = req.params['id'];
-    tweets = tweets.filter(tweet => tweet._id !== id);
-    res.sendStatus(200);
+    dao.deleteTweet(req.params['id']);
 }
 
 function likeTweet(req, res) {
-    const id = req.params['id'];
-    tweets = tweets.map(tweet => {
-        if (tweet._id === id) {
-            if (tweet.liked === true) {
-                tweet.liked = false;
-                tweet.stats.likes--;
-            } else {
-                tweet.liked = true;
-                tweet.stats.likes++;
+
+    // pure function, Tweet -> Tweet
+    const pressLikeButton = tweet => {
+        return {
+            ...tweet,
+            liked: !tweet.liked,
+            stats: {
+                ...tweet.stats,
+                likes: tweet.liked ? tweet.stats.likes-- : tweet.stats.likes++,
             }
-            return tweet;
-        } else {
-            return tweet;
         }
-    });
+    }
+
+    const id = req.params['id'];
+    const tweetToChange = dao.findTweetById(id);
+    dao.updateTweet(id, pressLikeButton(tweetToChange));
     res.sendStatus(200);
 }
 

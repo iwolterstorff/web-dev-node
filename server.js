@@ -1,6 +1,12 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require("mongoose");
+
 const app = express();
+
+const PORT = process.env.PORT || 4000;
+
+mongoose.connect("mongodb://localhost:27017/webdev");
 
 app.use(cors({
     origin: "*",
@@ -28,5 +34,6 @@ app.get('/hello', (req, res) => {
 
 require("./services/movies-service")(app);
 require("./services/tweeter-service")(app);
+require("./movies/service")(app);
 
-app.listen(process.env.PORT);
+app.listen(PORT);
