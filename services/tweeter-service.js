@@ -21,10 +21,12 @@ function createTweet(req, res) {
         ...req.body,
     }
     dao.createTweet(newTweet);
+    res.json(newTweet);
 }
 
 function deleteTweet(req, res) {
     dao.deleteTweet(req.params['id']);
+    res.json(req.params['id']);
 }
 
 function likeTweet(req, res) {
